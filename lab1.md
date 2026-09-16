@@ -39,7 +39,7 @@ docker compose up -d --build. При изменении Dockerfile также н
 
 видно: pg-master не лидер. Он пишет: Lock owner: postgresql1; I am postgresql0
 и I am (postgresql0), a secondary, and following a leader (postgresql1)
-=> pg-master → Replica и pg-slave → вероятно Leader
+=> pg-master → Replica и pg-slave →  Leader
 
 7.Проверяем pg-slave
 Для подтверждения состояния второго узла были просмотрены логи pg-slave
@@ -52,7 +52,7 @@ pg-master → secondary/replica (реплика)
 8. Для подключения к PostgreSQL на узле pg-slave была выполнена команда: docker exec -it pg-slave psql -h 127.0.0.1 -U postgres
 <img width="917" height="185" alt="image" src="https://github.com/user-attachments/assets/648699dd-a879-4961-a8d4-6974e6eacc5c" />
 
-9. Для определения роли узла была выполнена команда: SELECT pg_is_in_recovery() SELECT pg_is_in_recovery();
+9. Для определения роли узла была выполнена команда: SELECT pg_is_in_recovery()
 <img width="378" height="119" alt="image" src="https://github.com/user-attachments/assets/9c41d9ce-64ff-42cc-b59f-87b4da404f45" />
 
 В результате получено значение: f
@@ -75,4 +75,4 @@ t (true) —  pg-master является репликой
 Для проверки режима только для чтения на pg-master была выполнена попытка добавить новую запись: INSERT INTO test_table (name) VALUES ('Replica test');
 <img width="963" height="129" alt="image" src="https://github.com/user-attachments/assets/a2806c51-be59-48fe-b2be-f62795a86fe0" />
 
-Выводит ошибку  - это подтверждает, что pg-master работает в режиме только для чтения.
+В результате PostgreSQL вернул ошибку ERROR: cannot execute INSERT in a read-only transaction. Это подтверждает, что pg-master работает в режиме только для чтения и не принимает операции записи.
