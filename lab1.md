@@ -95,11 +95,23 @@ t (true) —  pg-master является репликой
 <img width="810" height="48" alt="Screenshot 2026-10-16 at 18 21 10" src="https://github.com/user-attachments/assets/85f24dfb-9d58-4af0-9b85-9debbb59720c" />
 
 4. Проверяем базу данных, подключаемся через адрес имя контейнера HAProxy
-<img width="858" height="481" alt="Screenshot 2026-10-16 at 18 23 20" src="https://github.com/user-attachments/assets/5ca6b0f3-7896-412d-997f-18c02ca5ef0d" />
+<img width="842" height="421" alt="Screenshot 2026-10-16 at 18 26 27" src="https://github.com/user-attachments/assets/bec083f4-7dd3-4fef-986d-381b9f5cd2b1" />
 
 <img width="1508" height="430" alt="Screenshot 2026-10-16 at 18 24 58" src="https://github.com/user-attachments/assets/ddf2f02c-a86e-42f3-b3d8-7280118196f7" />
 
 Любым способом выключаем доступ до ноды, которая сейчас является мастером (например, через docker stop ). Некоторое время ждем, после этого анализируем логи и так же пытаемся считать/записать что-то в БД через entrypoint подключение. Затем необходимо расписать, получилось или нет, а так же объяснить, что в итоге произошло после принудительного выключения мастера (со скриншотами):
+Остановили главное бд:
+<img width="795" height="210" alt="Screenshot 2026-10-16 at 18 27 05" src="https://github.com/user-attachments/assets/549d4870-22a0-42f2-a736-fd5e7f0f7b07" />
+
+Заходим в slave бд а адресом HAProxy и проверяем что оно главное и можно редактировать бд:
+<img width="861" height="479" alt="Screenshot 2026-10-16 at 18 27 53" src="https://github.com/user-attachments/assets/388c579f-c851-4c81-bdb7-9c22eeba6f82" />
+
+После принудительного выключения мастера страница статистики поменялась, также была разорвана связь с БД, которую выключили в терминале:
+<img width="1512" height="431" alt="Screenshot 2026-10-16 at 18 31 12" src="https://github.com/user-attachments/assets/87b38d55-248b-4634-84b3-e788ebfa89c3" />
+
+<img width="862" height="472" alt="Screenshot 2026-10-16 at 18 31 30" src="https://github.com/user-attachments/assets/ed1ac73d-db67-493c-9f56-d2e3e057530c" />
+
+
 
 
 
