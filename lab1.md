@@ -76,3 +76,30 @@ t (true) —  pg-master является репликой
 <img width="963" height="129" alt="image" src="https://github.com/user-attachments/assets/a2806c51-be59-48fe-b2be-f62795a86fe0" />
 
 В результате PostgreSQL вернул ошибку ERROR: cannot execute INSERT in a read-only transaction. Это подтверждает, что pg-master работает в режиме только для чтения и не принимает операции записи.
+
+## Часть 3
+1. Для балансировки трафика добавили новый сервис haproxy в docker-compose.yml
+2. Добавляем файл haproxy.cfg
+<img width="204" height="132" alt="Screenshot 2026-10-16 at 18 12 21" src="https://github.com/user-attachments/assets/7dc8a3ad-87a1-4c02-92a8-ae8d425313cd" />
+
+3. Перезапускаем проект, проверяем что:
+-Обе ноды корректно поднялись и распределили между собой роли мастера и слейва (аналогично Пункту 4 Части 1)
+<img width="1291" height="273" alt="Screenshot 2026-10-16 at 18 17 14" src="https://github.com/user-attachments/assets/a0d573cc-baa0-4d1e-8f84-f9002ebe88b1" />
+
+Зукипер подцепился к кластеру без ошибок (аналогично Пункту 4 Части 1)
+<img width="1298" height="427" alt="Screenshot 2026-10-16 at 18 20 41" src="https://github.com/user-attachments/assets/4cca3e16-cc55-40a2-987b-eb00ad78d67d" />
+
+Хапрокси поднялась без ошибок
+<img width="1297" height="257" alt="Screenshot 2026-10-16 at 18 20 57" src="https://github.com/user-attachments/assets/9cdef2d7-c43d-4ac1-a886-5fdbe113e097" />
+
+<img width="810" height="48" alt="Screenshot 2026-10-16 at 18 21 10" src="https://github.com/user-attachments/assets/85f24dfb-9d58-4af0-9b85-9debbb59720c" />
+
+4. Проверяем базу данных, подключаемся через адрес имя контейнера HAProxy
+<img width="858" height="481" alt="Screenshot 2026-10-16 at 18 23 20" src="https://github.com/user-attachments/assets/5ca6b0f3-7896-412d-997f-18c02ca5ef0d" />
+
+<img width="1508" height="430" alt="Screenshot 2026-10-16 at 18 24 58" src="https://github.com/user-attachments/assets/ddf2f02c-a86e-42f3-b3d8-7280118196f7" />
+
+Любым способом выключаем доступ до ноды, которая сейчас является мастером (например, через docker stop ). Некоторое время ждем, после этого анализируем логи и так же пытаемся считать/записать что-то в БД через entrypoint подключение. Затем необходимо расписать, получилось или нет, а так же объяснить, что в итоге произошло после принудительного выключения мастера (со скриншотами):
+
+
+
