@@ -78,11 +78,12 @@ t (true) —  pg-master является репликой
 В результате PostgreSQL вернул ошибку ERROR: cannot execute INSERT in a read-only transaction. Это подтверждает, что pg-master работает в режиме только для чтения и не принимает операции записи.
 
 ## Часть 3
+
 1. Для балансировки трафика добавили новый сервис haproxy в docker-compose.yml
-2. Добавляем файл haproxy.cfg
+3. Добавляем файл haproxy.cfg
 <img width="204" height="132" alt="Screenshot 2026-10-16 at 18 12 21" src="https://github.com/user-attachments/assets/7dc8a3ad-87a1-4c02-92a8-ae8d425313cd" />
 
-3. Перезапускаем проект, проверяем что:
+4. Перезапускаем проект, проверяем что:
 -Обе ноды корректно поднялись и распределили между собой роли мастера и слейва (аналогично Пункту 4 Части 1)
 <img width="1291" height="273" alt="Screenshot 2026-10-16 at 18 17 14" src="https://github.com/user-attachments/assets/a0d573cc-baa0-4d1e-8f84-f9002ebe88b1" />
 
@@ -111,6 +112,24 @@ t (true) —  pg-master является репликой
 
 <img width="862" height="472" alt="Screenshot 2026-10-16 at 18 31 30" src="https://github.com/user-attachments/assets/ed1ac73d-db67-493c-9f56-d2e3e057530c" />
 
+
+# Дополнительное задание: 
+
+Улучшить лабораторную, настроив кластер так, чтобы после “возвращенияˮ второй ноды в кластер она автоматически получала данные, которые
+были записаны в ее отсутствие
+
+1. Запускаем master:
+<img width="563" height="32" alt="Screenshot 2026-10-16 at 18 35 17" src="https://github.com/user-attachments/assets/648e888d-86a3-4f90-9f98-41f45e9335f6" />
+
+2. Проверяем состояние кластера:
+<img width="802" height="100" alt="Screenshot 2026-10-16 at 18 36 19" src="https://github.com/user-attachments/assets/d9fb7a0e-7b49-406d-9d4b-adb735c8c365" />
+
+3. Подключаемся к восстановленной ноде и проверяем данные:
+<img width="734" height="300" alt="Screenshot 2026-10-16 at 18 39 44" src="https://github.com/user-attachments/assets/e9a351ff-345c-4b8e-987e-de2815ffcbde" />
+
+Ключевая запись AfterFailover. Она была добавлена, когда pg-master был выключен. Если сейчас она присутствует, это подтверждает, что сервер автоматически получил изменения, пропущенные за время отсутствия.
+
+5. 
 
 
 
