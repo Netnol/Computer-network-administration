@@ -118,6 +118,7 @@ t (true) —  pg-master является репликой
 Сделать лабораторную на другом стеке (оставить patroni, но заменить zookeper и haproxy на что-то аналогичное):
 
 ZooKeeper -> etcd
+
 HAProxy	-> Envoy Proxy
 
 1. Заменяем зависимость Patroni
@@ -130,8 +131,11 @@ HAProxy	-> Envoy Proxy
 <img width="382" height="786" alt="Screenshot 2026-10-17 at 14 17 53" src="https://github.com/user-attachments/assets/c6ec4d70-7562-4c13-ba63-3a6c918d4d17" />
 
 Теперь мы определяем Primary через REST API Patroni:
+
 http://pg0:8008/primary
+
 http://pg1:8008/primary
+
 Patroni возвращает HTTP 200 для текущего Primary, удерживающего лидерскую блокировку. У Replica запрос /primary не должен возвращать 200.
 
 4. Запускаем запускаем etcd сначала с первой нодой чтобы она успела стать Primary:
@@ -150,6 +154,7 @@ Patroni возвращает HTTP 200 для текущего Primary, удер�
 <img width="772" height="193" alt="Screenshot 2026-10-17 at 14 36 42" src="https://github.com/user-attachments/assets/7e6e865f-c8b7-4780-a383-0761a1b9241a" />
 
 Теперь создадим новую таблицу из Primary бд
+
 <img width="284" height="303" alt="Screenshot 2026-10-17 at 14 37 36" src="https://github.com/user-attachments/assets/777c6980-e4f7-4376-ad2e-5d845c4b4129" />
 
 Подключаемся непосредственно к резервной базе:
@@ -165,3 +170,5 @@ Patroni возвращает HTTP 200 для текущего Primary, удер�
 
 Подключение через Envoy после остановки первого сервера, успешный INSERT и новая запись в таблице
 <img width="779" height="518" alt="Screenshot 2026-10-17 at 14 42 29" src="https://github.com/user-attachments/assets/20a4b1c6-8823-4fbc-9268-b43959c381a5" />
+
+Таким образом, мы полностью поменяли Zookeeper и HAProxy на Etcd и Envoy Proxy соответственно.  
