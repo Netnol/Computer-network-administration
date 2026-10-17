@@ -115,22 +115,53 @@ t (true) —  pg-master является репликой
 
 # Дополнительное задание: 
 
-Улучшить лабораторную, настроив кластер так, чтобы после “возвращенияˮ второй ноды в кластер она автоматически получала данные, которые
-были записаны в ее отсутствие
+Сделать лабораторную на другом стеке (оставить patroni, но заменить zookeper и haproxy на что-то аналогичное):
 
-1. Запускаем master:
-<img width="563" height="32" alt="Screenshot 2026-10-16 at 18 35 17" src="https://github.com/user-attachments/assets/648e888d-86a3-4f90-9f98-41f45e9335f6" />
+ZooKeeper -> etcd
+HAProxy	-> Envoy Proxy
 
-2. Проверяем состояние кластера:
-<img width="802" height="100" alt="Screenshot 2026-10-16 at 18 36 19" src="https://github.com/user-attachments/assets/d9fb7a0e-7b49-406d-9d4b-adb735c8c365" />
+1. Заменяем зависимость Patroni
+<img width="378" height="238" alt="Screenshot 2026-10-17 at 14 13 42" src="https://github.com/user-attachments/assets/58b92cfb-2376-497c-a410-58c56b941456" />
 
-3. Подключаемся к восстановленной ноде и проверяем данные:
-<img width="734" height="300" alt="Screenshot 2026-10-16 at 18 39 44" src="https://github.com/user-attachments/assets/e9a351ff-345c-4b8e-987e-de2815ffcbde" />
+2. Также в файле docker-compose.yml меняем на новые сервисы:
+<img width="702" height="872" alt="Screenshot 2026-10-17 at 14 15 18" src="https://github.com/user-attachments/assets/bc67ec0e-a61d-4fae-8a78-370be308d456" />
 
-Ключевая запись AfterFailover. Она была добавлена, когда pg-master был выключен. Если сейчас она присутствует, это подтверждает, что сервер автоматически получил изменения, пропущенные за время отсутствия.
+3. Добавляем новый файл envoy.yaml аналог файла haproxy.cfg
+<img width="382" height="786" alt="Screenshot 2026-10-17 at 14 17 53" src="https://github.com/user-attachments/assets/c6ec4d70-7562-4c13-ba63-3a6c918d4d17" />
 
-5. 
+Теперь мы определяем Primary через REST API Patroni:
+http://pg0:8008/primary
+http://pg1:8008/primary
+Patroni возвращает HTTP 200 для текущего Primary, удерживающего лидерскую блокировку. У Replica запрос /primary не должен возвращать 200.
 
+4. Запускаем запускаем etcd сначала с первой нодой чтобы она успела стать Primary:
+<img width="1188" height="452" alt="Screenshot 2026-10-17 at 14 29 32" src="https://github.com/user-attachments/assets/f3a6f1dc-e492-4d00-947b-326155171f95" />
 
+Вывод docker compose ps со всеми четырьмя контейнерами
+<img width="1503" height="355" alt="Screenshot 2026-10-17 at 14 30 50" src="https://github.com/user-attachments/assets/2b607614-1726-42bf-a68a-48f81a91eeeb" />
 
+Здоровое состояние etcd и роли Patroni
+<img width="895" height="273" alt="Screenshot 2026-10-17 at 14 32 07" src="https://github.com/user-attachments/assets/3ff8ca50-e1c0-4cec-b21e-3869b01740f3" />
 
+Результат проверки конфигурации Envoy и статистика /clusters
+<img width="723" height="632" alt="Screenshot 2026-10-17 at 14 33 29" src="https://github.com/user-attachments/assets/2333f7bf-db89-4e9b-a95e-aa2db154e582" />
+
+5. Проверяем репликацию и подключение через Envoy
+<img width="772" height="193" alt="Screenshot 2026-10-17 at 14 36 42" src="https://github.com/user-attachments/assets/7e6e865f-c8b7-4780-a383-0761a1b9241a" />
+
+Теперь создадим новую таблицу из Primary бд
+<img width="284" height="303" alt="Screenshot 2026-10-17 at 14 37 36" src="https://github.com/user-attachments/assets/777c6980-e4f7-4376-ad2e-5d845c4b4129" />
+
+Подключаемся непосредственно к резервной базе:
+<img width="744" height="328" alt="Screenshot 2026-10-17 at 14 38 49" src="https://github.com/user-attachments/assets/8c31872c-53e2-416d-86b1-1b848a03a838" />
+
+Три записи на Replica и сообщение об ошибке при попытке INSERT
+
+6. Проверяем автоматическое переключение
+<img width="1032" height="243" alt="Screenshot 2026-10-17 at 14 40 51" src="https://github.com/user-attachments/assets/2fc249c5-fae5-4e02-b855-533057f31fec" />
+Состояние Patroni после остановки pg0, где pg1 стал Leader
+
+<img width="708" height="408" alt="Screenshot 2026-10-17 at 14 41 21" src="https://github.com/user-attachments/assets/c36a67c6-113e-4d97-927f-29d2daf3f7ba" />
+
+Подключение через Envoy после остановки первого сервера, успешный INSERT и новая запись в таблице
+<img width="779" height="518" alt="Screenshot 2026-10-17 at 14 42 29" src="https://github.com/user-attachments/assets/20a4b1c6-8823-4fbc-9268-b43959c381a5" />
