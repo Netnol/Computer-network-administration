@@ -62,7 +62,7 @@ docker-compose up -d
 docker exec -u www-data -it nextcloud php occ config:system:set trusted_domains 1 --value="nextcloud"
 ```
 
-![Настройка trusted_domains](images/Настройка_trusted_domains_в_Nextclou.png)
+![Настройка trusted_domains](images/Настройка_trusted_domains_в_Nextcloud.png)
 
 ### 2.3. Создание хоста в Zabbix
 
@@ -168,7 +168,7 @@ docker restart grafana
 
 ---
 
-## 🛠 Задание. Создание дашбордов
+## Задание. Создание дашбордов
 
 ### 4.1. Дашборд для логов (Loki)
 
